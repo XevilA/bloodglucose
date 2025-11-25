@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="th">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>GlucoSense</title>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap"
+            rel="stylesheet"
+        />
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+        />
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+        <style>
+            /* CSS แบบบ้านๆ รวมไว้ที่นี่ */
+            body {
+                font-family: "Kanit", sans-serif;
+                background-color: #f0f2f5;
+                margin: 0;
+                display: flex;
+                justify-content: center;
+            }
+            .app-container {
+                width: 100%;
+                max-width: 414px; /* ขนาด iPhone */
+                min-height: 100vh;
+                background-color: #6cb4ee; /* สีฟ้าหลัก */
+                position: relative;
+                padding-bottom: 80px; /* เผื่อเมนูล่าง */
+                box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            }
+            .header {
+                padding: 20px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                color: white;
+                font-size: 20px;
+            }
+            .card {
+                background: white;
+                border-radius: 20px;
+                padding: 20px;
+                margin: 15px;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+                position: relative;
+            }
+            /* ปุ่มเมนูหน้าแรก */
+            .btn-menu {
+                background: white;
+                border-radius: 15px;
+                padding: 15px;
+                margin: 10px 20px;
+                display: flex;
+                align-items: center;
+                text-decoration: none;
+                color: #333;
+                font-weight: bold;
+                position: relative;
+            }
+            .btn-menu i {
+                width: 40px;
+                text-align: center;
+                color: #6cb4ee;
+                font-size: 24px;
+                margin-right: 10px;
+            }
+
+            /* วงแดงๆ ที่เขียนทับ (Signature เด็กปี 1) */
+            .scribble-circle {
+                position: absolute;
+                border: 3px solid #ff5733;
+                border-radius: 50%;
+                width: 120px;
+                height: 40px;
+                left: 80px;
+                top: 5px;
+                transform: rotate(-5deg);
+                pointer-events: none;
+            }
+
+            /* ฟอร์มและปุ่ม */
+            input {
+                width: 90%;
+                padding: 12px;
+                margin: 5px 0 15px 0;
+                border: 1px solid #ddd;
+                border-radius: 10px;
+                font-family: "Kanit";
+            }
+            .btn-submit {
+                background: #0047ab;
+                color: white;
+                border: none;
+                padding: 12px;
+                width: 100%;
+                border-radius: 10px;
+                font-size: 16px;
+                cursor: pointer;
+            }
+
+            /* วงกลมผลลัพธ์ */
+            .result-circle {
+                width: 200px;
+                height: 200px;
+                border: 8px solid white;
+                border-radius: 50%;
+                margin: 20px auto;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                color: white;
+                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+
+            /* ตารางประวัติ */
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                background: #d6eaf8;
+                border-radius: 10px;
+                overflow: hidden;
+                font-size: 12px;
+                text-align: center;
+            }
+            th,
+            td {
+                padding: 8px;
+                border: 1px solid #aed6f1;
+            }
+            th {
+                background: #85c1e9;
+                color: white;
+            }
+
+            /* Navigation Bar */
+            .nav-bar {
+                position: fixed;
+                bottom: 0;
+                width: 100%;
+                max-width: 414px;
+                background: white;
+                height: 70px;
+                display: flex;
+                justify-content: space-around;
+                align-items: center;
+                border-top-left-radius: 20px;
+                border-top-right-radius: 20px;
+            }
+            .nav-item {
+                color: #ccc;
+                font-size: 24px;
+                text-decoration: none;
+            }
+            .nav-item.active {
+                color: white;
+                background: #6cb4ee;
+                padding: 10px 15px;
+                border-radius: 15px;
+                margin-top: -30px;
+                border: 5px solid #f0f2f5;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="app-container">
+            {% if page == 'home' %}
+            <div class="header">
+                <i class="fas fa-bars"></i>
+                <b>GlucoSense</b>
+                <i class="fas fa-home"></i>
+            </div>
+
+            <div class="card" style="background: #ebf5fb">
+                <h3 style="color: #6cb4ee; margin: 0">ค่ามาตรฐาน</h3>
+                <ul style="padding-left: 20px; color: #555; font-size: 14px">
+                    <li>Fasting < 100 mg/dL</li>
+                    <li>After meal < 140 mg/dL</li>
+                </ul>
+            </div>
+
+            <a href="?page=history" class="btn-menu">
+                <i class="fas fa-lightbulb"></i> ประวัติ
+                <div class="scribble-circle"></div>
+            </a>
+            <a href="?page=eval" class="btn-menu">
+                <i class="fas fa-chart-line"></i> ประเมิน
+            </a>
+            <a href="#" class="btn-menu">
+                <i class="fas fa-bell"></i> แจ้งเตือน
+            </a>
+
+            <div
+                style="
+                    position: absolute;
+                    bottom: 100px;
+                    left: 20px;
+                    background: #ff5733;
+                    width: 45px;
+                    height: 45px;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: white;
+                "
+            >
+                <i class="fas fa-thermometer-half"></i>
+            </div>
+
+            {% elif page == 'eval' %}
+            <div class="header">
+                <a href="?page=home" style="color: white"
+                    ><i class="fas fa-arrow-left"></i
+                ></a>
+                <b>กรอกข้อมูล</b>
+                <div></div>
+            </div>
+
+            <div class="card" style="text-align: center">
+                <form method="POST" action="/">
+                    {% csrf_token %}
+                    <label style="display: block; text-align: left"
+                        >ระดับน้ำตาล (mg/dL)</label
+                    >
+                    <input
+                        type="number"
+                        name="glucose"
+                        placeholder="เช่น 120"
+                        required
+                    />
+
+                    <label style="display: block; text-align: left"
+                        >น้ำหนัก (kg)</label
+                    >
+                    <input
+                        type="number"
+                        name="weight"
+                        step="0.1"
+                        placeholder="เช่น 60"
+                        required
+                    />
+
+                    <label style="display: block; text-align: left"
+                        >ส่วนสูง (cm)</label
+                    >
+                    <input
+                        type="number"
+                        name="height"
+                        placeholder="เช่น 170"
+                        required
+                    />
+
+                    <button type="submit" class="btn-submit">คำนวณผล</button>
+                </form>
+            </div>
+
+            {% elif page == 'result' %}
+            <div class="header">
+                <a href="?page=eval" style="color: white"
+                    ><i class="fas fa-arrow-left"></i
+                ></a>
+                <b>DTX Result</b>
+                <i class="fas fa-share-alt"></i>
+            </div>
+
+            <div class="result-circle">
+                <div
+                    style="font-size: 20px; color: {{ status_color }}; font-weight: bold;"
+                >
+                    {{ status }}
+                </div>
+                <div
+                    style="font-size: 80px; line-height: 1; color: {{ status_color }}; font-weight: bold;"
+                >
+                    {{ glucose }}
+                </div>
+                <div style="font-size: 16px">mg/dl</div>
+            </div>
+
+            <div style="text-align: center; color: #003366">
+                <h2>BMI: {{ bmi }}</h2>
+                <h3>
+                    ผลลัพธ์:
+                    <span style="color: {{ status_color }};">{{ status }}</span>
+                </h3>
+            </div>
+
+            <div style="text-align: center; margin-top: 30px">
+                <a
+                    href="?page=home"
+                    class="btn-submit"
+                    style="
+                        display: inline-block;
+                        width: 40%;
+                        text-decoration: none;
+                    "
+                    >กลับหน้าหลัก</a
+                >
+            </div>
+
+            {% elif page == 'history' %}
+            <div class="header">
+                <a href="?page=home" style="color: white"
+                    ><i class="fas fa-arrow-left"></i
+                ></a>
+                <b>ประเมินค่าเฉลี่ยสะสม</b>
+                <div></div>
+            </div>
+
+            <div class="card">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Day</th>
+                            <th>เช้า</th>
+                            <th>กลางวัน</th>
+                            <th>เย็น</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>S</td>
+                            <td>150</td>
+                            <td>126</td>
+                            <td>102</td>
+                        </tr>
+                        <tr>
+                            <td>M</td>
+                            <td>131</td>
+                            <td>140</td>
+                            <td>125</td>
+                        </tr>
+                        <tr>
+                            <td>T</td>
+                            <td>148</td>
+                            <td>130</td>
+                            <td>120</td>
+                        </tr>
+                        <tr>
+                            <td>W</td>
+                            <td>130</td>
+                            <td>185</td>
+                            <td>130</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <br />
+                <canvas id="myChart"></canvas>
+            </div>
+
+            <script>
+                // กราฟเส้นแบบง่ายๆ
+                const ctx = document.getElementById("myChart");
+                new Chart(ctx, {
+                    type: "line",
+                    data: {
+                        labels: ["S", "M", "T", "W", "Th", "F", "Sa"],
+                        datasets: [
+                            {
+                                label: "น้ำตาลสะสม",
+                                data: [150, 131, 148, 130, 120, 140, 152],
+                                borderColor: "#3498DB",
+                                tension: 0.4,
+                            },
+                        ],
+                    },
+                });
+            </script>
+            {% endif %}
+
+            <div class="nav-bar">
+                <a href="#" class="nav-item"><i class="fas fa-user"></i></a>
+                <a href="?page=eval" class="nav-item"
+                    ><i class="fas fa-chart-bar"></i
+                ></a>
+                <a href="?page=home" class="nav-item active"
+                    ><i class="fas fa-home"></i
+                ></a>
+                <a href="#" class="nav-item"><i class="fas fa-utensils"></i></a>
+            </div>
+        </div>
+    </body>
+</html>
